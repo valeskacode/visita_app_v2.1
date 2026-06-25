@@ -1,5 +1,44 @@
 # Visita a Clientes de Pequeña Empresa — v2 (mobile-first)
 
+## 🆕 Actualización — pantalla "Buscar Cliente" rediseñada
+
+La pantalla de carga y búsqueda se rehízo para igualar el mockup
+`busqueda_y_carga.png` (mobile, 1:1). Resumen de lo nuevo — el detalle
+completo, con los comentarios "🔧 AQUÍ" para conectar datos reales, está
+en `app.py` (función `pantalla_busqueda` y las nuevas
+`render_cliente_encontrado` / `render_lista_similares`) y en
+`utils/helpers.py`:
+
+- **Carga de Base de Datos**: panel verde "Archivo procesado
+  correctamente" con nombre, tamaño y fecha del Excel, contador grande
+  de registros cargados, botón "Vista previa de datos" (muestra una
+  tabla con los primeros registros) y botón "Limpiar base" para volver
+  a empezar sin reiniciar la app.
+- **Estado del Sistema**: indicador de conectado/sin datos y fecha de
+  la última carga.
+- **Búsqueda Inteligente**: además de DNI/cuenta/nombre, ahora también
+  busca por **código de cliente**. Si el texto coincide EXACTO con un
+  DNI o nombre, se muestra una tarjeta de "Cliente encontrado" con
+  foto-avatar (iniciales), teléfono/correo/dirección, código de
+  cliente, límite de crédito, saldo actual, días de atraso y
+  calificación, más un botón "Confirmar este cliente".
+- **Clientes similares**: si no hay match exacto (o incluso debajo de
+  un match exacto), se listan otros clientes con nombre o DNI parecido
+  — útil para no confundir homónimos o detectar posibles duplicados.
+- **"Escanear DNI"**: abre la cámara para tomar la foto del documento,
+  pero —igual que antes— NO hay lectura automática (OCR) conectada;
+  ver el comentario "🔧 AQUÍ" en `app.py` para integrarla más adelante.
+- **Datos que tu Excel todavía no trae** (teléfono, correo, límite de
+  crédito): se muestran como "No registrado" / "No disponible". Si tu
+  base sí los tiene, el lugar exacto para mapear esas columnas está
+  comentado en `utils/helpers.py` (`COLUMNAS_OPCIONALES_CONTACTO`) y en
+  `app.py` (`render_cliente_encontrado`).
+- La barra de navegación que antes se veía como botones rojos arriba
+  ahora se ve **fija abajo**, con apariencia de íconos (no de botones),
+  igual al mockup.
+
+---
+
 App de campo en Streamlit, rediseñada con enfoque 100% celular (también
 funciona en PC), siguiendo el flujo:
 

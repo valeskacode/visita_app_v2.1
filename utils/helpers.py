@@ -83,6 +83,28 @@ EXCEL_COLUMNS = [
     "ESTRATO", "TIPO_EXPEDIENTE",
 ]
 
+# --------------------------------------------------------------------------
+# 📌 NUEVO — COLUMNAS OPCIONALES PARA LA TARJETA "Cliente encontrado"
+# --------------------------------------------------------------------------
+# La tarjeta de búsqueda (pantalla_busqueda → render_cliente_encontrado en
+# app.py) ahora muestra teléfono, correo y límite de crédito, tal como el
+# mockup. Tu Excel actual (columnas de arriba) NO trae esos tres datos, así
+# que por ahora se muestran como "No registrado" / "No disponible".
+#
+# EDITAR AQUÍ 👇 si tu base de datos sí tiene esas columnas: escribe el
+# nombre EXACTO de la columna (en mayúsculas, como queda tras leer el
+# Excel) en vez de "TELEFONO" / "EMAIL" / "LIMITE_CREDITO_MN", y usa ese
+# mismo nombre en `render_cliente_encontrado()` dentro de app.py (sección
+# marcada con 🔧 AQUÍ en ese archivo).
+COLUMNAS_OPCIONALES_CONTACTO = [
+    "TELEFONO",           # Ej: número de celular del cliente
+    "EMAIL",               # Ej: correo de contacto
+    "LIMITE_CREDITO_MN",   # Ej: línea de crédito aprobada (no es el saldo actual)
+]
+EXCEL_COLUMNS = EXCEL_COLUMNS + [
+    c for c in COLUMNAS_OPCIONALES_CONTACTO if c not in EXCEL_COLUMNS
+]
+
 CLIENTE_VISITADO_OPCIONES = [
     "1. Cliente con actividad laboral y/o económica vigente",
     "2. Cliente con situación desmejorada",
@@ -168,6 +190,73 @@ def slug(texto):
     texto = re.sub(r"[^A-Za-z0-9_\-]+", "_", texto)
     texto = re.sub(r"_+", "_", texto)
     return texto.strip("_") or "sin_dato"
+
+
+# --------------------------------------------------------------------------
+# 📌 NUEVO — HELPERS PARA LA TARJETA "Cliente encontrado" Y LA LISTA DE
+# "Clientes similares" de la pantalla de Búsqueda (igualando el mockup).
+# --------------------------------------------------------------------------
+def solo_digitos(texto):
+    """Deja solo los dígitos de un texto. Útil para comparar DNIs aunque
+    el usuario escriba espacios, puntos o el nombre junto al número."""
+    return re.sub(r"\D", "", safe_str(texto))
+
+
+def iniciales(nombre):
+    """Devuelve hasta 2 iniciales en mayúscula para el avatar circular
+    (ej. 'Juan Pérez García' -> 'JP')."""
+    partes = [p for p in safe_str(nombre).split() if p]
+    if not partes:
+        return "?"
+    if len(partes) == 1:
+        return partes[0][:2].upper()
+    return (partes[0][0] + partes[1][0]).upper()
+
+
+def clase_calificacion(calif):
+    """Clase de color para el 'chip' de calificación (A=verde, B=ámbar,
+    cualquier otra cosa=rojo). Ajusta este mapeo si tu escala SBS usa
+    otras letras o un formato distinto."""
+    c = safe_str(calif).strip().upper()
+    if c.startswith("A"):
+        return "chip-calif-ok"
+    if c.startswith("B"):
+        return "chip-calif-warn"
+    if c:
+        return "chip-calif-bad"
+    return "chip-calif-na"
+
+
+def clientes_similares(df, fila_actual, max_resultados=3):
+    """Busca otros clientes con nombre o DNI parecido al de `fila_actual`,
+    para ayudar al usuario a distinguir homónimos o detectar posibles
+    duplicados (ver criterio "Documentos duplicados en más de un cliente"
+    en CRITERIOS_DEF). No es una librería de fuzzy-matching: es una
+    heurística simple a propósito, para no añadir dependencias nuevas.
+
+    Se considera "similar" un registro que:
+      - comparte 2 o más palabras del nombre completo, o
+      - comparte los primeros 6 dígitos del DNI,
+    y que NO es exactamente el mismo registro (mismo DNI Y mismo nombre).
+    """
+    nombre_actual = safe_str(fila_actual.get("CLIENTE")).strip().lower()
+    dni_actual = solo_digitos(fila_actual.get("DOCPEN"))
+    palabras_actual = set(nombre_actual.split())
+
+    candidatos = []
+    for _, row in df.iterrows():
+        nombre_row = safe_str(row.get("CLIENTE")).strip().lower()
+        dni_row = solo_digitos(row.get("DOCPEN"))
+        if dni_row == dni_actual and nombre_row == nombre_actual:
+            continue  # es el mismo cliente, no un "similar"
+        palabras_row = set(nombre_row.split())
+        comparten_nombre = len(palabras_actual & palabras_row) >= 2
+        comparten_dni = len(dni_actual) >= 6 and dni_row[:6] == dni_actual[:6]
+        if comparten_nombre or comparten_dni:
+            candidatos.append(row)
+        if len(candidatos) >= max_resultados:
+            break
+    return pd.DataFrame(candidatos) if candidatos else pd.DataFrame(columns=df.columns)
 
 
 # --------------------------------------------------------------------------

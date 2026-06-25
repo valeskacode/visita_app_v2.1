@@ -194,3 +194,190 @@ div[data-testid="stHorizontalBlock"].top-menu div.stButton > button:hover {
 /* ---- Botones Atrás / Siguiente al pie, en la misma línea, compactos ---- */
 .nav-pie div[data-testid="column"] { padding: 0 0.2rem; }
 .nav-pie div.stButton > button { padding: 0.5rem 0.4rem; font-size: 0.85rem; }
+
+/* =====================================================================
+   MEJORAS — Pantalla "Buscar Cliente" (Carga de base + Búsqueda)
+   Igualando el mockup: tarjeta de cliente encontrado, lista de
+   clientes similares, zona de carga de archivo, panel de estado del
+   sistema, barra inferior de navegación y botones de acción.
+   ===================================================================== */
+
+/* ---- Barra de usuario (compacta, arriba de "Carga de Base de Datos") --- */
+.usuario-bar-label {
+  font-size: 0.82rem; font-weight: 600; color: var(--azul);
+  display: flex; align-items: center; height: 100%;
+}
+
+/* ---- Zona de carga de archivo (estilo "nube punteada" del mockup) ---- */
+div[data-testid="stFileUploaderDropzone"],
+div[data-testid="stFileUploadDropzone"] {
+  background: #FAFBFC !important;
+  border: 1.5px dashed #CBD5E1 !important;
+  border-radius: 12px !important;
+}
+div[data-testid="stFileUploaderDropzone"] button,
+div[data-testid="stFileUploadDropzone"] button {
+  background-color: #ffffff !important; color: var(--azul) !important;
+  border: 1px solid var(--gris-borde) !important;
+}
+
+/* ---- Panel verde "Archivo procesado correctamente" ---- */
+.processed-panel {
+  background: var(--verde-bg); border: 1px solid #BBF0D2;
+  border-radius: 14px; padding: 1rem 1.1rem; margin-bottom: 0.7rem;
+  text-align: left;
+}
+.processed-head { color: var(--verde); font-weight: 700; margin-bottom: 0.6rem; }
+.processed-file { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.8rem; }
+.processed-file .file-icon { font-size: 1.6rem; }
+.processed-file .file-name { font-weight: 700; color: var(--azul); font-size: 0.9rem; }
+.processed-file .file-meta { font-size: 0.75rem; color: #64748B; }
+.processed-count { font-size: 2.2rem; font-weight: 800; color: var(--verde); text-align: center; line-height: 1.1; }
+.processed-count-label { text-align: center; font-size: 0.85rem; color: #475569; margin-bottom: 0.2rem; }
+
+/* Botones "Vista previa de datos" (verde, contorno) y "Limpiar base"
+   (rojo claro, contorno) — usan el truco de "marcador + hermano" para
+   que cada botón de Streamlit reciba un estilo distinto al genérico
+   rojo de toda la app (ver div.stButton > button arriba en este mismo
+   archivo). El marcador es un <div> invisible que se inyecta justo
+   antes del botón correspondiente desde app.py. */
+.marker-vistaprevia + div[data-testid="stButton"] button {
+  background-color: #ffffff !important; color: var(--verde) !important;
+  border: 1.5px solid var(--verde) !important; text-align: left;
+}
+.marker-vistaprevia + div[data-testid="stButton"] button:hover {
+  background-color: var(--verde-bg) !important;
+}
+.marker-limpiar + div[data-testid="stButton"] button {
+  background-color: #FEF2F2 !important; color: var(--rojo) !important;
+  border: 1.5px solid #FCD3D3 !important; text-align: left;
+}
+.marker-limpiar + div[data-testid="stButton"] button:hover {
+  background-color: #FCE3E3 !important;
+}
+
+/* ---- Panel "Estado del Sistema" ---- */
+.estado-sistema-dot { font-size: 0.7rem; }
+
+/* ---- Barra de búsqueda + botón "Escanear DNI" ---- */
+.marker-escanear + div[data-testid="stButton"] button {
+  background-color: #ffffff !important; color: var(--rojo) !important;
+  border: 1.5px solid var(--rojo) !important; font-size: 0.78rem;
+}
+.marker-escanear + div[data-testid="stButton"] button:hover {
+  background-color: #FEF2F2 !important;
+}
+
+/* ---- Indicador "Buscando coincidencias en tiempo real..." ---- */
+.live-indicator {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.82rem; color: var(--verde); font-weight: 600;
+  margin: 0.3rem 0 0.7rem 0.1rem;
+}
+.live-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--verde);
+  animation: pulso-vivo 1.4s ease-in-out infinite;
+}
+@keyframes pulso-vivo {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ---- Tarjeta "Cliente encontrado" ---- */
+.cliente-card {
+  background: #ffffff; border: 1px solid var(--gris-borde);
+  border-radius: 14px; padding: 1.1rem; margin-bottom: 0.6rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+.cliente-card-top { display: flex; align-items: flex-start; gap: 0.7rem; margin-bottom: 0.9rem; }
+.avatar-circle {
+  width: 46px; height: 46px; min-width: 46px; border-radius: 50%;
+  background: var(--verde-bg); color: var(--verde);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1rem; border: 1px solid #BBF0D2;
+}
+.avatar-chica { width: 36px; height: 36px; min-width: 36px; font-size: 0.85rem; }
+.cliente-nombre-wrap { flex: 1; }
+.cliente-nombre { font-weight: 700; font-size: 1.05rem; color: var(--azul); line-height: 1.25; }
+.badge-encontrado {
+  background: var(--verde-bg); color: var(--verde); font-weight: 700;
+  font-size: 0.7rem; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+}
+.cliente-grid { display: flex; flex-wrap: wrap; gap: 1rem; }
+.cliente-col { flex: 1 1 160px; min-width: 150px; }
+.dato-fila { font-size: 0.82rem; color: #334155; margin-bottom: 0.55rem; word-break: break-word; }
+.dato-etiqueta { font-size: 0.68rem; color: #64748B; font-weight: 600; margin-top: 0.5rem; }
+.dato-valor { font-size: 0.92rem; color: var(--azul); font-weight: 700; }
+.valor-alerta { color: var(--rojo) !important; }
+.valor-ok { color: var(--verde) !important; }
+.chip-calif {
+  display: inline-block; padding: 2px 10px; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 700; margin-top: 2px;
+}
+.chip-calif-ok   { background: var(--verde-bg); color: var(--verde); }
+.chip-calif-warn { background: var(--amarillo-bg); color: var(--amarillo); }
+.chip-calif-bad  { background: #FCE8E6; color: var(--rojo); }
+.chip-calif-na   { background: #F1F5F9; color: #64748B; }
+
+/* Botón "Confirmar este cliente": el rojo sólido por defecto ya
+   coincide con el mockup, solo lo hacemos un poco más alto. */
+.marker-confirmar + div[data-testid="stButton"] button { padding: 0.7rem 1rem; }
+
+/* ---- Lista de "Clientes similares" ---- */
+.similar-item {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.6rem 0.2rem; border-bottom: 1px solid var(--gris-borde);
+}
+.similar-info { flex: 1; min-width: 0; }
+.similar-nombre { font-weight: 700; color: var(--azul); font-size: 0.88rem; }
+.similar-dni { font-size: 0.75rem; color: #64748B; }
+.similar-saldo { font-size: 0.85rem; font-weight: 700; color: var(--azul); white-space: nowrap; }
+.marker-abrir-similar + div[data-testid="stButton"] button {
+  background-color: #F8FAFC !important; color: var(--azul) !important;
+  border: 1px solid var(--gris-borde) !important; font-size: 0.78rem;
+  padding: 0.35rem 0.6rem; margin: -0.3rem 0 0.5rem 0;
+}
+
+/* ---- Caja "Consejo" ---- */
+.tip-box {
+  background: #FEF2F2; border-left: 4px solid var(--rojo);
+  border-radius: 10px; padding: 0.8rem 1rem; font-size: 0.82rem;
+  color: #475569; margin: 0.8rem 0;
+}
+.tip-box b { color: var(--rojo); }
+
+/* ---- Barra inferior de navegación fija (reemplaza al menú superior) ---
+   El <div class="marker-bottomnav"> se inyecta justo antes de los
+   columns() de la navegación, y aquí lo usamos como referencia para
+   convertir esa fila de columnas en una barra FIJA abajo, con look de
+   íconos (no de botones rojos), igual que el mockup. El estado activo
+   usa el atributo nativo de Streamlit button[kind="primary"] (se activa
+   con type="primary" en el botón correspondiente desde app.py). */
+.marker-bottomnav + div[data-testid="stHorizontalBlock"] {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #ffffff; border-top: 1px solid var(--gris-borde);
+  padding: 0.45rem 0.4rem 0.55rem; z-index: 999;
+  max-width: 480px; margin: 0 auto;
+}
+@media (min-width: 900px) {
+  .marker-bottomnav + div[data-testid="stHorizontalBlock"] { max-width: 520px; }
+}
+.marker-bottomnav + div[data-testid="stHorizontalBlock"] button[kind="secondary"] {
+  background-color: transparent !important; color: #64748B !important;
+  border: none !important; box-shadow: none !important;
+  font-weight: 600; font-size: 0.74rem; padding: 0.25rem 0.1rem;
+}
+.marker-bottomnav + div[data-testid="stHorizontalBlock"] button[kind="primary"] {
+  background-color: transparent !important; color: var(--rojo) !important;
+  border: none !important; box-shadow: none !important;
+  font-weight: 700; font-size: 0.74rem; padding: 0.25rem 0.1rem;
+}
+
+/* ---- Ícono opcional a la derecha del header (ej. "❓" del mockup) ---- */
+.app-header .titles { flex: 1; }
+.app-header .icon-box-derecha {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--gris-borde); color: #64748B;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+}
